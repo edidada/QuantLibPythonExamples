@@ -41,6 +41,22 @@ CC=icx CXX=icpx python3 setup.py build
 python3 setup.py install
 ```
 
+> 现在 `setup.py` 会自动识别编译器：当 `CC=icx CXX=icpx` 时启用 Intel
+> 专属参数（`svml`、`-ferror-limit=0`），默认的 gcc/g++ 编译则不会带上。
+
+## 持续集成（GitHub Actions）
+
+`.github/workflows/build-and-test.yml` 在 `ubuntu-22.04`
+（swig 4.0.2 / python 3.10 / gcc 11）上复现上述本地编译流程：
+
+1. 编译并安装 QuantLib 1.27 C++ 库到 `/usr`；
+2. 用 swig 生成 `QuantLib/ql_wrap.cpp`，再通过 `python3 setup.py install --user`
+   编译安装 Python 包装；
+3. 依次执行冒烟测试、所有 `qlExamples`/`qlexExamples` 脚本及完整
+   `testsuite`（`python3 main.py`）。
+
+QuantLib 构建树和已安装的 Python 包都会被缓存，后续运行可跳过耗时的编译步骤。
+
 ---
 
 ## Examples（示例）

@@ -2,7 +2,20 @@
 setup.py file for QuantLib
 """
 
-from distutils.core import setup, Extension
+import os
+
+from setuptools import setup, Extension
+
+
+def _using_intel_compiler():
+    """Detect Intel oneAPI compilers (icx/icpx/icc/icpc) via CC/CXX."""
+    cc = os.environ.get('CC', '')
+    cxx = os.environ.get('CXX', '')
+    return any(k in (cc + ' ' + cxx).lower() for k in (
+        'icx', 'icc', 'icpc', 'icpx'))
+
+
+using_intel = _using_intel_compiler()
 
 ql_module = Extension(
     name='QuantLib._QuantLib',
@@ -26,15 +39,11 @@ ql_module = Extension(
         'qlex/time/daycounters/Actual365_25.cpp'],
     include_dirs=['/usr/include/', './'],
     library_dirs=['/usr/lib/'],
-    libraries=[
-        'QuantLib',
-        'svml'  # for intel oneapi compiler
-    ],
-    # config extra_compile_args by yourself
-    extra_compile_args=[
-        '-w',
-        '-ferror-limit=0'
-    ])
+    libraries=['QuantLib'] + (['svml'] if using_intel else []),
+    # extra_compile_args: only needed by Intel oneAPI compiler;
+    # enable them via CC=icx CXX=icpx (see README)
+    extra_compile_args=['-w'] + (
+        ['-ferror-limit=0'] if using_intel else []))
 
 setup(
     name='QuantLib',

@@ -41,6 +41,24 @@ CC=icx CXX=icpx python3 setup.py build
 python3 setup.py install
 ```
 
+> `setup.py` now auto-detects the compiler: with `CC=icx CXX=icpx`
+> it adds the Intel-specific flags (`svml`, `-ferror-limit=0`), while a
+> plain gcc/g++ build (default) keeps them off.
+
+## Continuous integration
+
+A GitHub Actions workflow (`.github/workflows/build-and-test.yml`) reproduces
+the build above on `ubuntu-22.04` (swig 4.0.2 / python 3.10 / gcc 11):
+
+1. build & install the QuantLib 1.27 C++ library into `/usr`;
+2. generate `QuantLib/ql_wrap.cpp` with swig, then compile & install the
+   python package with `python3 setup.py install --user`;
+3. run the smoke test, all `qlExamples`/`qlexExamples` scripts and the full
+   `testsuite` (`python3 main.py`).
+
+Both the QuantLib build tree and the installed python package are cached, so
+later runs skip the expensive compilation steps.
+
 ---
 
 ## Examples

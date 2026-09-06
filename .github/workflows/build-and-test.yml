@@ -1,0 +1,103 @@
+name: build-and-test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Build QuantLib wrapper and run examples & testsuite
+    # ubuntu-22.04 ships exactly the stack described in the README:
+    # gcc/g++ 11, swig 4.0.2, python 3.10, boost 1.74
+    runs-on: ubuntu-22.04
+    timeout-minutes: 180
+
+    env:
+      QL_VERSION: '1.27'
+      QL_TARBALL_URL: >-
+        https://github.com/lballabio/QuantLib/archive/refs/tags/QuantLib-v1.27.tar.gz
+      QL_SRC_DIR: '/home/runner/ql-src'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          set -euxo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential curl libtool-bin swig libboost-dev \
+            python3-dev python3-setuptools python3-numpy \
+            python3-scipy python3-prettytable python3-seaborn
+
+      # ---- QuantLib (C++ library) -----------------------------------
+      # Cache the configured + compiled source tree so that repeated runs
+      # only re-run `make install`.
+      - name: Cache QuantLib C++ build tree
+        id: cache-ql-cpp
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/ql-src
+          key: ql-cpp-${{ env.QL_VERSION }}-${{ runner.os }}-${{ runner.arch }}
+
+      - name: Build and install QuantLib C++ library
+        if: steps.cache-ql-cpp.outputs.cache-hit != 'true'
+        run: |
+          set -euxo pipefail
+          mkdir -p "$QL_SRC_DIR"
+          curl -fsSL "$QL_TARBALL_URL" -o /tmp/quantlib.tar.gz
+          tar -xzf /tmp/quantlib.tar.gz -C "$QL_SRC_DIR"
+          cd "$QL_SRC_DIR/QuantLib-$QL_VERSION"
+          ./configure --prefix=/usr --disable-static
+          make -j"$(nproc)"
+          sudo make install
+          sudo ldconfig
+
+      - name: Install QuantLib C++ library from cache
+        if: steps.cache-ql-cpp.outputs.cache-hit == 'true'
+        run: |
+          set -euxo pipefail
+          cd "$QL_SRC_DIR/QuantLib-$QL_VERSION"
+          sudo make install
+          sudo ldconfig
+
+      # ---- QuantLib python wrapper -----------------------------------
+      # Cache the installed package (~/.local). Invalidated automatically
+      # whenever any SWIG interface file / setup.py changes.
+      - name: Cache installed QuantLib python package
+        id: cache-ql-py
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.local/lib/python3.10/site-packages/QuantLib*
+          key: ql-py-${{ runner.os }}-py310-${{ env.QL_VERSION }}-${{ hashFiles('SWIGpy/**') }}
+
+      - name: Generate SWIG wrapper and install python package
+        if: steps.cache-ql-py.outputs.cache-hit != 'true'
+        run: |
+          set -euxo pipefail
+          cd SWIGpy
+          swig -w509 -c++ -python \
+            -outdir QuantLib \
+            -o QuantLib/ql_wrap.cpp \
+            quantlib.i
+          CFLAGS='-O2 -g0' python3 setup.py install --user
+
+      # ---- Verification ----------------------------------------------
+      - name: Smoke test
+        run: |
+          python3 -c "import QuantLib; print('QuantLib version:', QuantLib.__version__)"
+
+      - name: Run qlExamples and qlexExamples
+        run: |
+          for f in qlExamples/*.py qlexExamples/*.py; do
+            echo "===== $f ====="
+            python3 "$f"
+          done
+
+      - name: Run full test suite (testsuite/*)
+        run: |
+          python3 main.py
