@@ -33,6 +33,11 @@ jobs:
             python3-dev python3-setuptools python3-numpy \
             python3-scipy python3-prettytable python3-seaborn
 
+      # Note: tarballs from tag 'QuantLib-v1.27' unpack to 'QuantLib-QuantLib-v1.27/'
+      # (GitHub prefixes <repo>-<tag>), so all steps below work with $QL_SRC_DIR
+      # directly via --strip-components=1. Old caches keyed with a nested layout
+      # are not compatible; delete cache 'ql-cpp-1.27-Linux-X64' if present.
+
       # ---- QuantLib (C++ library) -----------------------------------
       # Cache the configured + compiled source tree so that repeated runs
       # only re-run `make install`.
@@ -49,8 +54,10 @@ jobs:
           set -euxo pipefail
           mkdir -p "$QL_SRC_DIR"
           curl -fsSL "$QL_TARBALL_URL" -o /tmp/quantlib.tar.gz
-          tar -xzf /tmp/quantlib.tar.gz -C "$QL_SRC_DIR"
-          cd "$QL_SRC_DIR/QuantLib-$QL_VERSION"
+          # GitHub archive top dir is '<repo>-<tag>' = 'QuantLib-QuantLib-v1.27',
+          # so strip it and unpack the source directly into $QL_SRC_DIR.
+          tar -xzf /tmp/quantlib.tar.gz -C "$QL_SRC_DIR" --strip-components=1
+          cd "$QL_SRC_DIR"
           ./configure --prefix=/usr --disable-static
           make -j"$(nproc)"
           sudo make install
@@ -60,7 +67,7 @@ jobs:
         if: steps.cache-ql-cpp.outputs.cache-hit == 'true'
         run: |
           set -euxo pipefail
-          cd "$QL_SRC_DIR/QuantLib-$QL_VERSION"
+          cd "$QL_SRC_DIR"
           sudo make install
           sudo ldconfig
 
