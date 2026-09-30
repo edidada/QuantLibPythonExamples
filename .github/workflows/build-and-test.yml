@@ -47,7 +47,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /home/runner/ql-src
-          key: ql-cpp-${{ env.QL_VERSION }}-${{ runner.os }}-${{ runner.arch }}
+          key: ql-cpp-${{ env.QL_VERSION }}-intraday-${{ runner.os }}-${{ runner.arch }}
 
       - name: Build and install QuantLib C++ library
         if: steps.cache-ql-cpp.outputs.cache-hit != 'true'
@@ -62,7 +62,11 @@ jobs:
           # GitHub archive tarballs are git snapshots: no generated 'configure'
           # is committed, only configure.ac + autogen.sh. Generate it first.
           ./autogen.sh
-          ./configure --prefix=/usr --disable-static
+          # --enable-intraday defines QL_HIGH_RESOLUTION_DATE, which guards the
+          # intraday Date API (hours/seconds/fractionOfDay/localDateTime...) that
+          # the reconstructed SWIG interfaces (ql/date.i) bind unconditionally.
+          # Without it those members are #ifdef'd out and ql_wrap.cpp won't compile.
+          ./configure --prefix=/usr --disable-static --enable-intraday
           make -j"$(nproc)"
           sudo make install
           sudo ldconfig
