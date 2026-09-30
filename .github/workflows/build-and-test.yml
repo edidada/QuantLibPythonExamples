@@ -30,6 +30,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             build-essential curl libtool-bin swig libboost-dev \
+            autoconf automake libtool \
             python3-dev python3-setuptools python3-numpy \
             python3-scipy python3-prettytable python3-seaborn
 
@@ -58,6 +59,9 @@ jobs:
           # so strip it and unpack the source directly into $QL_SRC_DIR.
           tar -xzf /tmp/quantlib.tar.gz -C "$QL_SRC_DIR" --strip-components=1
           cd "$QL_SRC_DIR"
+          # GitHub archive tarballs are git snapshots: no generated 'configure'
+          # is committed, only configure.ac + autogen.sh. Generate it first.
+          ./autogen.sh
           ./configure --prefix=/usr --disable-static
           make -j"$(nproc)"
           sudo make install
