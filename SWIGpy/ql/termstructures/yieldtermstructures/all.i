@@ -160,7 +160,7 @@ class Name : public YieldTermStructure, public LazyObject {
             const DayCounter& dayCounter,
             const std::vector<Handle<Quote>>& jumps,
             const std::vector<Date>& jumpDates,
-            const Interpolator& i = Interpolator(),
+            const Interpolator& i,
             const IterativeBootstrap& b = IterativeBootstrap()) {
                 return new Name(
                     referenceDate, instruments, dayCounter, jumps, jumpDates, i,
@@ -173,7 +173,7 @@ class Name : public YieldTermStructure, public LazyObject {
             const Date& referenceDate,
             const std::vector<ext::shared_ptr<RateHelper>>& instruments,
             const DayCounter& dayCounter,
-            const Interpolator& i = Interpolator(),
+            const Interpolator& i,
             const IterativeBootstrap& b = IterativeBootstrap()) {
                 return new Name(
                     referenceDate, instruments, dayCounter, i,
@@ -189,7 +189,7 @@ class Name : public YieldTermStructure, public LazyObject {
             const DayCounter& dayCounter,
             const std::vector<Handle<Quote>>& jumps,
             const std::vector<Date>& jumpDates,
-            const Interpolator& i = Interpolator(),
+            const Interpolator& i,
             const IterativeBootstrap& b = IterativeBootstrap()) {
                 return new Name(
                     settlementDays, calendar, instruments, dayCounter, jumps, jumpDates, i,
@@ -203,7 +203,7 @@ class Name : public YieldTermStructure, public LazyObject {
             const Calendar& calendar,
             const std::vector<ext::shared_ptr<RateHelper>>& instruments,
             const DayCounter& dayCounter,
-            const Interpolator& i = Interpolator(),
+            const Interpolator& i,
             const IterativeBootstrap& b = IterativeBootstrap()) {
                 return new Name(
                     settlementDays, calendar, instruments, dayCounter, i,
@@ -332,7 +332,7 @@ class Name : public YieldTermStructure, public LazyObject {
             const DayCounter& dayCounter,
             const std::vector<Handle<Quote>>& jumps,
             const std::vector<Date>& jumpDates,
-            const Interpolator& i = Interpolator(),
+            const Interpolator& i,
             const GlobalBootstrap& b = GlobalBootstrap()) {
                 if (b.additionalHelpers.empty()) {
                     return new Name(
@@ -352,7 +352,7 @@ class Name : public YieldTermStructure, public LazyObject {
             const Date& referenceDate,
             const std::vector<ext::shared_ptr<RateHelper>>& instruments,
             const DayCounter& dayCounter,
-            const Interpolator& i = Interpolator(),
+            const Interpolator& i,
             const GlobalBootstrap& b = GlobalBootstrap()) {
                 if (b.additionalHelpers.empty()) {
                     return new Name(
@@ -375,7 +375,7 @@ class Name : public YieldTermStructure, public LazyObject {
             const DayCounter& dayCounter,
             const std::vector<Handle<Quote>>& jumps,
             const std::vector<Date>& jumpDates,
-            const Interpolator& i = Interpolator(),
+            const Interpolator& i,
             const GlobalBootstrap& b = GlobalBootstrap()) {
                 if (b.additionalHelpers.empty()) {
                     return new Name(
@@ -396,7 +396,7 @@ class Name : public YieldTermStructure, public LazyObject {
             const Calendar& calendar,
             const std::vector<ext::shared_ptr<RateHelper>>& instruments,
             const DayCounter& dayCounter,
-            const Interpolator& i = Interpolator(),
+            const Interpolator& i,
             const GlobalBootstrap& b = GlobalBootstrap()) {
                 if (b.additionalHelpers.empty()) {
                     return new Name(
@@ -496,7 +496,7 @@ class Name : public YieldTermStructure, public LazyObject {
             const DayCounter& dayCounter,
             const std::vector<Handle<Quote>>& jumps,
             const std::vector<Date>& jumpDates,
-            const Interpolator& i = Interpolator(),
+            const Interpolator& i,
             const LocalBootstrap& b = LocalBootstrap()) {
                 return new Name(
                     referenceDate, instruments, dayCounter, jumps, jumpDates, i,
@@ -507,7 +507,7 @@ class Name : public YieldTermStructure, public LazyObject {
             const Date& referenceDate,
             const std::vector<ext::shared_ptr<RateHelper>>& instruments,
             const DayCounter& dayCounter,
-            const Interpolator& i = Interpolator(),
+            const Interpolator& i,
             const LocalBootstrap& b = LocalBootstrap()) {
                 return new Name(
                     referenceDate, instruments, dayCounter, i,
@@ -521,7 +521,7 @@ class Name : public YieldTermStructure, public LazyObject {
             const DayCounter& dayCounter,
             const std::vector<Handle<Quote>>& jumps,
             const std::vector<Date>& jumpDates,
-            const Interpolator& i = Interpolator(),
+            const Interpolator& i,
             const LocalBootstrap& b = LocalBootstrap()) {
                 return new Name(
                     settlementDays, calendar, instruments, dayCounter, jumps, jumpDates, i,
@@ -533,7 +533,7 @@ class Name : public YieldTermStructure, public LazyObject {
             const Calendar& calendar,
             const std::vector<ext::shared_ptr<RateHelper>>& instruments,
             const DayCounter& dayCounter,
-            const Interpolator& i = Interpolator(),
+            const Interpolator& i,
             const LocalBootstrap& b = LocalBootstrap()) {
                 return new Name(
                     settlementDays, calendar, instruments, dayCounter, i,

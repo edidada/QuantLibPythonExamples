@@ -173,7 +173,8 @@ for i in range(numberOfBonds):
 bondDiscountingTermStructure = ql.PiecewiseLogLinearDiscount(
     settlementDate,
     bondInstruments,
-    termStructureDayCounter)
+    termStructureDayCounter,
+    ql.LogLinear())
 
 # Building of the Libor forecasting curve
 # deposits
@@ -363,7 +364,8 @@ depoSwapInstruments.push_back(s15y)
 depoSwapTermStructure = ql.PiecewiseLogLinearDiscount(
     settlementDate,
     depoSwapInstruments,
-    termStructureDayCounter)
+    termStructureDayCounter,
+    ql.LogLinear())
 
 # Term structures that will be used for pricing:
 # the one used for discounting cash flows

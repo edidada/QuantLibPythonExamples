@@ -240,7 +240,8 @@ eoniaInstruments.push_back(ois30Y)
 eoniaTermStructure = ql.PiecewiseCubicDiscount(
     todaysDate,
     eoniaInstruments,
-    termStructureDayCounter)
+    termStructureDayCounter,
+    ql.Cubic())
 eoniaTermStructure.enableExtrapolation()
 
 # Term structures that will be used for pricing:

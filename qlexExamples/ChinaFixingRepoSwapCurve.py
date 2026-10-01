@@ -131,7 +131,8 @@ instruments.push_back(s10y)
 termStrc = ql.PiecewiseBackwardFlatForward(
     today,
     instruments,
-    termStrcDayCounter)
+    termStrcDayCounter,
+    ql.BackwardFlat())
 
 curveNodeDate = calendar.adjust(settlementDate + dy7)
 print(curveNodeDate - today, '{0:.8f}'.format(termStrc.discount(curveNodeDate)),
